@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8">
+  <style>
+iframe {
+  border: none;
+}
+  </style>
+  <body>
+    <iframe sandbox="allow-scripts allow-pointer-lock allow-same-origin allow-popups allow-forms"></iframe>
+    <script src="d3.v3.js"></script>
+    <script>
+var template = '<' + 'html>'
+  + '<' + 'meta charset="utf-8">'
+  + '<' + 'script src="http://localhost:8080/d3.v3.js">' + '<' + '/script>'
+  + '<' + 'script>'
+    + 'd3.json(\'data.json\', function(err, res) { alert(res) })'
+  + '<' + '/script>'
++ '<' + '/html>'
+//remove the last instance
+var blobUrl = ''
+var iframe = d3.select('iframe')
+window.URL.revokeObjectURL(blobUrl)
+var blob = new Blob([template], {type: 'text/html'})
+blobUrl = URL.createObjectURL(blob)
+iframe.node().src = blobUrl
+    </script>
+  </body>
+</html>
