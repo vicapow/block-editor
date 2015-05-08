@@ -3,4 +3,6 @@ html
     link(rel="stylesheet" type="text/css" href="/_build/css/main.css")
   body
   script(src="/_build/js/common.js")
-  script(src="/_build/js/pages/editor.js")
+  script(src="/_build/js/entry.js")
+  script(type="text/javascript").
+    require('./src/bootstrap').init('pages/editor')

@@ -4,8 +4,11 @@ var path = require('path')
 var less = require('less')
 var express = require('express')
 var bodyParser = require('body-parser')
-var app = express()
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 var config = require('./config')
+
+var app = express()
 
 app.set('view engine', 'jade')
 app.set('views', './src/views')
@@ -13,6 +16,11 @@ app.use(function(req, res, next) {
   console.log(req.url)
   next()
 })
+
+app.use(session({
+  store: new FileStore({path: config.sessionsDir}),
+  secret: config.sessionSecret,
+}))
 
 app.get('/', function(req, res, next) {
   res.render('index')
@@ -46,8 +54,10 @@ app.get('/iframe', jsonParser, function(req, res, next) {
   return res.send(content)
 })
 
-app.use(express.static(__dirname))
+app.use(express.static(path.join(process.cwd(), config.staticOutputDir)))
 
-require('./bundler.js')(app)
+require('./src/routes/bundler')(app)
+require('./src/routes/auth')(app)
+require('./src/routes/api')(app)
 
 var server = app.listen(config.port)

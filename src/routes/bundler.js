@@ -7,7 +7,7 @@ var concat = require('concat-stream')
 var mkdirp = require('mkdirp')
 var xtend = require('xtend')
 var babelify = require('babelify')
-var config = require('./config')
+var config = require('../../config')
 
 var commonSharedModules = [
   {name: 'd3'},
@@ -18,7 +18,9 @@ var commonSharedModules = [
   {name: 'codemirror/mode/xml/xml'},
   {name: 'codemirror/mode/css/css'},
   {name: 'codemirror/mode/htmlmixed/htmlmixed'},
-  {name: 'react/addons'}
+  {name: 'react/addons'},
+  {name: 'superagent'},
+  {name: 'events'},
   // Example of a local alias:
   // {name: 'color', alias: './client/scripts/src/color'},
 ]
@@ -30,7 +32,7 @@ module.exports = function(app) {
 
 function setupCommonBundleAndRoute(app) {
   var relative = '/_build/js/common.js'
-  var output = path.join(__dirname, config.staticOutputDir, relative)
+  var output = path.join(config.absoluteStaticOutputDir, relative)
   mkdirp(path.dirname(output), function(err, res) {
     if(err) throw err
     if (config.clearCachedCommonBundle) {
@@ -95,7 +97,7 @@ function generateCommonBundle(relative, output, app) {
 
 function setupMainBundleAndRoute(app) {
   var relative = '/_build/js/entry.js'
-  var output = path.join(__dirname, config.staticOutputDir, relative)
+  var output = path.join(__dirname, '../', config.staticOutputDir, relative)
   mkdirp(path.dirname(output), function(err, res) {
     if(err) throw err
     fs.unlink(output, function(err) {
