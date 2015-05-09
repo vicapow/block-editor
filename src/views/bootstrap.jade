@@ -5,4 +5,4 @@ html
   script(src="/_build/js/common.js")
   script(src="/_build/js/entry.js")
   script(type="text/javascript").
-    require('bootstrap').init({route: '/editor'})
+    require('bootstrap').init(!{JSON.stringify(props)})

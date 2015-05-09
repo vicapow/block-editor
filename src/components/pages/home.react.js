@@ -21,7 +21,7 @@ var HomePage = React.createClass({
     var {state} = this
     var {blockURL} = state
     return <div>
-      <h1>bl.ock editor</h1>
+      <h1>bl.ocks editor</h1>
       <p>
         makes it easy to create or remix existing bl.ocks from <a href="http://bl.ocks.org">bl.ocks.org</a>.
       </p>

@@ -1,3 +1,4 @@
+'use strict'
 var path = require('path')
 var fs = require('fs')
 var browserify = require('browserify')
@@ -40,7 +41,7 @@ function setupCommonBundleRoute(app) {
   app.get(relative, function(req, res, next) {
     res.type('.js')
     if (bundleContent) return res.send(bundleContent)
-    requestQueue.push({req: req, res: res, next: next})
+    requestQueue.push({req, res, next})
   })
   mkdirp(path.dirname(output), function(err, res) {
     if(err) throw err
@@ -56,15 +57,15 @@ function setupCommonBundleRoute(app) {
   function done(content) {
     console.log('packaged common bundle', content.length)
     bundleContent = content
-    requestQueue.forEach(function(item) { item.res.send(bundleContent) })
+    requestQueue.forEach(({res}) => res.send(bundleContent))
     requestQueue = []
   }
 }
 
 function generateCommonBundle(relative, output, cb) {
-  fs.exists(output, function(exists) {
+  fs.exists(output, exists => {
     if (exists && !config.clearCachedCommonBundle) {
-      fs.readFile(output, function(err, content) {
+      fs.readFile(output, (err, content) => {
         if (err) throw err
         gotBundle(content.toString('utf-8'))
       })
@@ -75,7 +76,7 @@ function generateCommonBundle(relative, output, cb) {
         minify: config.minify,
       })
 
-      commonSharedModules.forEach(function(module) {
+      commonSharedModules.forEach(module => {
         if (!module.alias) bundle.require(module.name)
         else bundle.require(module.alias, {expose: module.name})
       })
@@ -105,25 +106,24 @@ function setupMainBundleRoute(app) {
     res.type('.js')
     console.log('request for entry file')
     if (bundleContent) return res.send(bundleContent)
-    requestQueue.push({req: req, res: res, next: next})
+    requestQueue.push({req, res, next})
   })
-  mkdirp(path.dirname(output), function(err, res) {
+  mkdirp(path.dirname(output), (err, res) => {
     if(err) throw err
-    fs.unlink(output, function() { generateMainBundle(output, start, finish) })
+    fs.unlink(output, () => generateMainBundle(output, start, finish))
   })
-  function start() {
-    bundleContent = null
-  }
+  function start() { bundleContent = null }
   function finish(content) {
     console.log('packaged entry bundle', content.length)
     bundleContent = content
-    requestQueue.forEach(function(item) { item.res.send(content) })
+    requestQueue.forEach(({res}) => res.send(content))
     requestQueue = []
   }
 }
 
 function generateMainBundle(output, start, finish) {
   var browserifyArgs = {debug: config.debugBrowserify, minify: config.minify}
+  var bundle
   if (config.watchify) {
     bundle = watchify(browserify(xtend(watchify.args, browserifyArgs)), {
       delay: 0,
@@ -131,11 +131,11 @@ function generateMainBundle(output, start, finish) {
   } else {
     bundle = browserify(browserifyArgs)
   }
-  commonSharedModules.forEach(function(module) { bundle.external(module.name) })
+  commonSharedModules.forEach(module => bundle.external(module.name))
 
   bundle.require('./src/bootstrap.js', {expose: 'bootstrap'})
 
-  // React + ES6ify.
+  // React + ES6 transform.
   bundle.transform(babelify.configure({
     optional: ['runtime', 'es7.objectRestSpread'],
   }))
