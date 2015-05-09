@@ -21,6 +21,8 @@ var commonSharedModules = [
   {name: 'react/addons'},
   {name: 'superagent'},
   {name: 'events'},
+  {name: 'keymirror'},
+  {name: 'babel-runtime/core-js/object/assign'},
   // Example of a local alias:
   // {name: 'color', alias: './client/scripts/src/color'},
 ]
@@ -83,6 +85,7 @@ function generateCommonBundle(relative, output, app) {
   var bundleContent
   var requestQueue = []
   function gotBundle(content) {
+    console.log('packed common bundles', content.length)
     bundleContent = content
     requestQueue.forEach(function(item) { item.res.send(bundleContent) })
     requestQueue = []
@@ -119,8 +122,8 @@ function generateMainBundleAndSetupRoute(relative, output, app) {
     bundle = browserify(browserifyArgs)
   }
   commonSharedModules.forEach(function(module) { bundle.external(module.name) })
-
-  bundle.require('./src/bootstrap.js')
+  
+  bundle.require('./src/bootstrap.js', {expose: 'bootstrap'})
 
   // React + ES6ify.
   bundle.transform(babelify.configure({

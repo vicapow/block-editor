@@ -1,6 +1,6 @@
 'use strict'
 var React = require('react')
-var VisDisplay = require('../VisDisplay.react')
+var VisDisplay = require('../vis-display.react')
 var CodeMirror = require('react-code-mirror')
 // CodeMirror is not CommonJS compatible.
 require('codemirror/mode/javascript/javascript')
@@ -8,19 +8,19 @@ require('codemirror/mode/xml/xml')
 require('codemirror/mode/css/css')
 require('codemirror/mode/htmlmixed/htmlmixed')
 
-var defaultTemplate = require('../defaultTemplate')
+var template = require('../../default-editor-template')
 
-var EditorApp = React.createClass({
+var EditorPage = React.createClass({
   getInitialState() {
     return {
-      iframeContent: defaultTemplate,
+      iframeContent: template,
     }
   },
   _handleEditorChange(e) {
     this.setState({iframeContent: e.target.value})
   },
   render() {
-    var content = this.state.iframeContent;
+    var content = this.state.iframeContent
     return <div>
       <h1> Hello from react!</h1>
       <VisDisplay content={content}/>
@@ -32,4 +32,4 @@ var EditorApp = React.createClass({
   }
 })
 
-module.exports = EditorApp
+module.exports = EditorPage

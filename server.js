@@ -23,7 +23,11 @@ app.use(session({
 }))
 
 app.get('/', function(req, res, next) {
-  res.render('index')
+  res.render('home')
+})
+
+app.get('/editor', function(req, res, next) {
+  res.render('editor')
 })
 
 app.get('/_build/css/:filename', function(req, res, next) {
@@ -54,10 +58,14 @@ app.get('/iframe', jsonParser, function(req, res, next) {
   return res.send(content)
 })
 
-app.use(express.static(path.join(process.cwd(), config.staticOutputDir)))
+// app.use(express.static(config.absoluteStaticOutputDir))
 
 require('./src/routes/bundler')(app)
 require('./src/routes/auth')(app)
 require('./src/routes/api')(app)
+
+app.use(function(req, res, next) {
+  res.render('404')
+})
 
 var server = app.listen(config.port)

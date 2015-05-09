@@ -1,7 +1,7 @@
 'use strict'
 var React = require('react')
 var request = require('superagent')
-var IndexApp = React.createClass({
+var HomePage = React.createClass({
   getInitialState() {
     return {}
   },
@@ -35,4 +35,4 @@ var IndexApp = React.createClass({
   }
 })
 
-module.exports = IndexApp
+module.exports = HomePage

@@ -1,4 +1,7 @@
+'use strict'
+var path = require('path')
 var parseArgs = require('minimist')
+var mkdirp = require('mkdirp')
 var secrets = require('./secrets.js') // All the secrets we can't commit.
 var argv = parseArgs(process.argv.slice(2), {
   default: {
@@ -19,7 +22,7 @@ var config = {
   blocksMetadataDir: './client/_blocks-metadata',
   clearCachedCommonBundle: argv['clear-cached-common-bundle'] === 'true',
   sessionSecret: secrets.sessionSecret || '',
-  sessionsDir: './tmp/sessions',
+  sessionsDir: './.tmp/sessions',
   githubBasicClientId: secrets.githubBasicClientId,
   githubBasicSecretId: secrets.githubBasicSecretId,
   githubAccessScope: 'gist',

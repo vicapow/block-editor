@@ -1,10 +1,11 @@
 'use strict'
 
 var dispatcher = require('../dispatcher')
+var AppConstants = require('../constants/app-constants')
 
 var AppActions = {
-  setRoute(route) {
-    dispatcher.dispatch({route})
+  updateRoute({route}) {
+    dispatcher.dispatch({route, actionType: AppConstants.APP_UPDATE_ROUTE})
   }
 }
 

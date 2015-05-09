@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^0.9.0",
+    "babel-runtime": "^5.2.17",
     "babelify": "^6.0.2",
     "body-parser": "^1.12.3",
     "browser-request": "^0.3.3",
@@ -23,6 +24,7 @@
     "github": "^0.2.4",
     "github-oauth": "^0.2.1",
     "jade": "^1.9.2",
+    "keymirror": "^0.1.1",
     "less": "^2.5.0",
     "minimist": "^1.1.1",
     "mkdirp": "^0.5.0",
