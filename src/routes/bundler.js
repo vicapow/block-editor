@@ -28,27 +28,40 @@ var commonSharedModules = [
 ]
 
 module.exports = function(app) {
-  setupCommonBundleAndRoute(app)
-  setupMainBundleAndRoute(app)
+  setupCommonBundleRoute(app)
+  setupMainBundleRoute(app)
 }
 
-function setupCommonBundleAndRoute(app) {
+function setupCommonBundleRoute(app) {
   var relative = '/_build/js/common.js'
   var output = path.join(config.absoluteStaticOutputDir, relative)
+  var bundleContent = null
+  var requestQueue = []
+  app.get(relative, function(req, res, next) {
+    res.type('.js')
+    if (bundleContent) return res.send(bundleContent)
+    requestQueue.push({req: req, res: res, next: next})
+  })
   mkdirp(path.dirname(output), function(err, res) {
     if(err) throw err
     if (config.clearCachedCommonBundle) {
       fs.unlink(output, function(err) {
         // We don't care if the file doesn't already exist.
-        generateCommonBundle(relative, output, app)
+        generateCommonBundle(relative, output, done)
       })
     } else {
-      generateCommonBundle(relative, output, app)
+      generateCommonBundle(relative, output, done)
     }
   })
+  function done(content) {
+    console.log('packaged common bundle', content.length)
+    bundleContent = content
+    requestQueue.forEach(function(item) { item.res.send(bundleContent) })
+    requestQueue = []
+  }
 }
 
-function generateCommonBundle(relative, output, app) {
+function generateCommonBundle(relative, output, cb) {
   fs.exists(output, function(exists) {
     if (exists && !config.clearCachedCommonBundle) {
       fs.readFile(output, function(err, content) {
@@ -78,42 +91,39 @@ function generateCommonBundle(relative, output, app) {
       // Save the bundle to disk.
       bundle.pipe(fs.createWriteStream(output))
       // But also buffer the output into memory.
-      bundle.pipe(concat({encoding: 'string'}, gotBundle))
+      bundle.pipe(concat({encoding: 'string'}, cb))
     }
   })
+}
 
-  var bundleContent
+function setupMainBundleRoute(app) {
+  var relative = '/_build/js/entry.js'
+  var output = path.join(config.absoluteStaticOutputDir, relative)
+  var bundleContent = null
   var requestQueue = []
-  function gotBundle(content) {
-    console.log('packed common bundles', content.length)
-    bundleContent = content
-    requestQueue.forEach(function(item) { item.res.send(bundleContent) })
-    requestQueue = []
-  }
-
   app.get(relative, function(req, res, next) {
     res.type('.js')
+    console.log('request for entry file')
     if (bundleContent) return res.send(bundleContent)
     requestQueue.push({req: req, res: res, next: next})
   })
-}
-
-function setupMainBundleAndRoute(app) {
-  var relative = '/_build/js/entry.js'
-  var output = path.join(__dirname, '../', config.staticOutputDir, relative)
   mkdirp(path.dirname(output), function(err, res) {
     if(err) throw err
-    fs.unlink(output, function(err) {
-      generateMainBundleAndSetupRoute(relative, output, app)
-    })
+    fs.unlink(output, function() { generateMainBundle(output, start, finish) })
   })
+  function start() {
+    bundleContent = null
+  }
+  function finish(content) {
+    console.log('packaged entry bundle', content.length)
+    bundleContent = content
+    requestQueue.forEach(function(item) { item.res.send(content) })
+    requestQueue = []
+  }
 }
 
-function generateMainBundleAndSetupRoute(relative, output, app) {
-  var browserifyArgs = {
-    debug: config.debugBrowserify,
-    minify: config.minify,
-  }
+function generateMainBundle(output, start, finish) {
+  var browserifyArgs = {debug: config.debugBrowserify, minify: config.minify}
   if (config.watchify) {
     bundle = watchify(browserify(xtend(watchify.args, browserifyArgs)), {
       delay: 0,
@@ -122,7 +132,7 @@ function generateMainBundleAndSetupRoute(relative, output, app) {
     bundle = browserify(browserifyArgs)
   }
   commonSharedModules.forEach(function(module) { bundle.external(module.name) })
-  
+
   bundle.require('./src/bootstrap.js', {expose: 'bootstrap'})
 
   // React + ES6ify.
@@ -131,22 +141,15 @@ function generateMainBundleAndSetupRoute(relative, output, app) {
   }))
   if (browserifyArgs.minify) bundle.transform({global: true}, 'uglifyify')
 
-  var bundleContent
-  var requestQueue = []
   function build() {
-    bundleContent = undefined
+    start()
     var buildBundle = bundle.bundle()
     buildBundle.on('error', function(err) {
       console.error(err.message)
       this.emit('end')
     })
     buildBundle.pipe(fs.createWriteStream(output))
-    buildBundle.pipe(concat({encoding: 'string'}, function(content) {
-      console.log('finished bundling content', content.length)
-      bundleContent = content
-      requestQueue.forEach(function(item) { item.res.send(bundleContent) })
-      requestQueue = []
-    }))
+    buildBundle.pipe(concat({encoding: 'string'}, finish))
   }
 
   build() // First build.
@@ -154,12 +157,5 @@ function generateMainBundleAndSetupRoute(relative, output, app) {
   bundle.on('update', function() {
     console.log('watchify file updated')
     build()
-  })
-
-  app.get(relative, function(req, res, next) {
-    res.type('.js')
-    console.log('request for entry file')
-    if (bundleContent) return res.send(bundleContent)
-    requestQueue.push({req: req, res: res, next: next})
   })
 }
