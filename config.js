@@ -23,6 +23,7 @@ var config = {
   clearCachedCommonBundle: argv['clear-cached-common-bundle'] === 'true',
   sessionSecret: secrets.sessionSecret || '',
   sessionsDir: './.tmp/sessions',
+  hashIdSalt: secrets.hashIdSalt,
   githubBasicClientId: secrets.githubBasicClientId,
   githubBasicSecretId: secrets.githubBasicSecretId,
   githubAccessScope: 'gist',

@@ -27,7 +27,7 @@ app.use(session({
 // See components/pages/index for a full list of page routes.
 pageRoutes.forEach(route => {
   app.get(route, (req, res, next) => {
-    res.render('bootstrap', {props: {route: route}})
+    res.render('bootstrap', {props: {initialRoute: route}})
   })
 })
 

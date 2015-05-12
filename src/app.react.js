@@ -1,6 +1,6 @@
 'use strict'
 var React = require('react')
-var AppStore = require('./app-store')
+var AppStore = require('./stores/app-store')
 var AppActions = require('./actions/app-actions')
 var Pages = require('./components/pages')
 
@@ -17,15 +17,16 @@ var App = React.createClass({
   componentDidMount() {
     AppStore.addChangeListener(this._onChange)
     // Set the first route.
-    AppActions.updateRoute({route: this.props.route})
+    AppActions.updateRoute({route: this.props.initialRoute})
   },
   componentDidUnmount() {
     AppStore.removeChangeListener(this._onChange)
   },
   render() {
     var {props, state} = this
-    var Page = Pages[props.route]
-    var pageContent = Page ? <Page {...props} /> : null
+    var Page = Pages[state.route]
+    if (!Page && state.route.match(/\/editor\/.+/)) Page = Pages.editor
+    var pageContent = Page ? <Page route={state.route} /> : null
     return <div>
       {pageContent}
       <code>

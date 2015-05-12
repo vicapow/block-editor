@@ -19,7 +19,7 @@ var github = new GithubApi({
 })
 
 module.exports = {
-  getBlock: function(blockURL, cb) {
+  getBlock(blockURL, cb) {
     var url = UrlParser.parse(blockURL, true)
     if (url.hostname === 'bl.ocks.org')
       url.host = url.hostname = 'gist.github.com'
@@ -31,22 +31,22 @@ module.exports = {
         hostname: url.hostname,
       })
     var id = path.parse(url.pathname).name
-    github.gists.get({id: id}, function(err, res) {
+    github.gists.get({id}, (err, res) => {
       if (err) return cb(err)
       var blockDir = path.join(process.cwd(), config.blocksDir, id)
       var filenames = Object.keys(res.files)
-      var files = filenames.map(function(key) { return res.files[key] })
-      mkdirp(blockDir, function(err) {
-        async.eachLimit(files, 100, function(file, cb) {
+      var files = filenames.map(key => res.files[key])
+      mkdirp(blockDir, (err) => {
+        async.eachLimit(files, 100, (file, cb) => {
           fs.writeFile(path.join(blockDir, file.filename), file.content, cb)
-        }, function(err) {
+        }, (err) => {
           if (err) return cb(err)
-          blockMetadata.get(id, function(err, metadata) {
+          blockMetadata.get(id, (err, metadata) => {
             if (err) return cb(err)
             metadata.latestVersion = res.history[0].version
-            blockMetadata.set(id, metadata, function(err) {
+            blockMetadata.set(id, metadata, (err) => {
               if (err) return cb(err)
-              else return cb()
+              else return cb({id})
             })
           })
         })

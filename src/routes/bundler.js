@@ -55,8 +55,8 @@ function setupCommonBundleRoute(app) {
     }
   })
   function done(content) {
-    console.log('packaged common bundle', content.length)
     bundleContent = content
+    console.log('packaged common bundle', content.length)
     requestQueue.forEach(({res}) => res.send(bundleContent))
     requestQueue = []
   }
@@ -104,7 +104,6 @@ function setupMainBundleRoute(app) {
   var requestQueue = []
   app.get(relative, function(req, res, next) {
     res.type('.js')
-    console.log('request for entry file')
     if (bundleContent) return res.send(bundleContent)
     requestQueue.push({req, res, next})
   })

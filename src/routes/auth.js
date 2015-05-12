@@ -12,8 +12,8 @@ var githubOauth = require('github-oauth')({
 module.exports = function(app) {
   return // Lets hold off on authentication for now.
   githubOauth.addRoutes(app, function(err, token, res, tokenRes) {
-    console.log('Error: ', err)
-    console.log('token', token)
+    // console.log('Error: ', err)
+    // console.log('token', token)
     // console.dir(res)
     // console.dir(tokenRes)
   })

@@ -24,6 +24,7 @@
     "flux": "^2.0.3",
     "github": "^0.2.4",
     "github-oauth": "^0.2.1",
+    "hashids": "^1.0.1",
     "jade": "^1.9.2",
     "keymirror": "^0.1.1",
     "less": "^2.5.0",

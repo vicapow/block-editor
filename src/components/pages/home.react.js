@@ -1,18 +1,12 @@
 'use strict'
 var React = require('react')
-var request = require('superagent')
+var AppActions = require('../../actions/app-actions')
 var HomePage = React.createClass({
   getInitialState() {
     return {}
   },
-  _submitBlock(e) {
-    request.get('/api/block-data/')
-      .query({blockURL: this.state.blockURL})
-      .accept('json')
-      .end(function(err, res) {
-        if (err) throw err
-        console.log(res)
-      })
+  _submitBlock() {
+    AppActions.submitBlockURL({blockURL: this.state.blockURL})
   },
   _onChangeBlockURL(e) {
     this.setState({blockURL: e.target.value})
