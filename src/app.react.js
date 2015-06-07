@@ -25,7 +25,9 @@ var App = React.createClass({
   render() {
     var {props, state} = this
     var Page = Pages[state.route]
-    if (!Page && state.route.match(/\/editor\/.+/)) Page = Pages.editor
+    if (!Page && state.route && state.route.match(/\/editor\/.+/)) {
+      Page = Pages.editor
+    }
     var pageContent = Page ? <Page route={state.route} /> : null
     return <div>
       {pageContent}

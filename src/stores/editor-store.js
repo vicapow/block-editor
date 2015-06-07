@@ -18,6 +18,7 @@ var EditorStore = Object.assign({}, EventEmitter.prototype, {
 
 dispatcher.register(action => {
   if (action.actionType === EditorConstants.EDITOR_RECEIVED_BLOCK_CONTENT) {
+    data.id = action.id
     EditorStore.emit(CHANGE_EVENT)
   }else {
     // no op.

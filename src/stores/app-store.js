@@ -14,13 +14,14 @@ var data = {
 function submitBlockURL({blockURL}) {
   if (data.isLoading) return
   data.isLoading = true
-  request.get('/api/block-data/')
+  request.post('/api/block-edit/')
     .query({blockURL})
     .accept('json')
     .end((err, res) => {
       if (err) throw err
-      Object.assign(data, {isLoading: false, route: '/editor/'})
-      EditorActions.receivedBlockContent({blockContent: res.body})
+      var id = res.body.id
+      Object.assign(data, {isLoading: false, route: '/editor/' + id})
+      EditorActions.receivedBlockContent({id})
       AppStore.emit(CHANGE_EVENT)
     })
 }
